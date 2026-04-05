@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            
+        <script>
+        function toggleTable(id) {
+            var el = document.getElementById(id);
+            var btn = document.getElementById('btn-' + id);
+            if (el.style.display === 'none' || el.style.display === '') {
+                el.style.display = 'block';
+                if (btn) btn.innerHTML = btn.innerHTML.replace('▼', '▲');
+            } else {
+                el.style.display = 'none';
+                if (btn) btn.innerHTML = btn.innerHTML.replace('▲', '▼');
+            }
+        }
+        
+        function parseDisplayDate(dateString) {
+            if (!dateString) return null;
+            var parts = dateString.split('-');
+            if (parts.length === 3) {
+                var day = parseInt(parts[0]);
+                var month = parseInt(parts[1]);
+                var year = parseInt(parts[2]);
+                return new Date(year, month - 1, day);
+            }
+            return null;
+        }
+        
+        function getDayOfWeek(date) {
+            var days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            var shortDays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            return {
+                full: days[date.getDay()],
+                short: shortDays[date.getDay()]
+            };
+        }
+        </script>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; position: relative; }
+                .app-header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
+                .date-header { background: #fff; padding: 15px; text-align: center; font-size: 1.2rem; color: #2c3e50; border-bottom: 1px solid #ddd; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; border-radius: 10px; margin-bottom: 20px; }
+                .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 15px; margin-bottom: 20px; }
+                .kpi-cell { padding: 20px; border-radius: 10px; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                .kpi-val { font-size: 2rem; font-weight: 800; }
+                .kpi-lbl { font-size: 0.9rem; opacity: 0.9; }
+                .work-detail { background: #f8f9fa; margin: 15px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-around; }
+                .work-detail-item { text-align: center; }
+                .work-detail-label { font-size: 0.85rem; color: #7f8c8d; }
+                .work-detail-value { font-size: 1.5rem; font-weight: bold; color: #2c3e50; }
+                .data-card { background: white; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+                .card-title-bar { padding: 15px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+                .bg-work { background: linear-gradient(135deg, #3498db, #2980b9); }
+                .bg-load { background: linear-gradient(135deg, #e67e22, #d35400); }
+                .bg-toload { background: linear-gradient(135deg, #27ae60, #229954); }
+                .bg-tounload { background: linear-gradient(135deg, #f39c12, #e67e22); }
+                .bg-repair { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+                .bg-approach { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+                .bg-transfer { background: linear-gradient(135deg, #16a085, #1abc9c); }
+                .bg-weather { background: linear-gradient(135deg, #3498db, #2980b9); }
+                .table-container { overflow-x: auto; padding: 0; }
+                .custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+                .custom-table th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; }
+                .custom-table td { padding: 10px; border-bottom: 1px solid #eee; }
+                .weather-row { display: flex; flex-direction: row; gap: 15px; padding: 20px; overflow-x: auto; }
+                .weather-day { background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center; min-width: 150px; flex: 1; }
+                .weather-date-top { font-size: 1.1rem; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+                .weather-weekday { font-size: 0.9rem; color: #7f8c8d; font-style: italic; margin-bottom: 8px; }
+                .row-critical { background-color: #ffebee !important; font-weight: bold !important; font-style: italic !important; color: #c62828 !important; }
+                .row-normal { background-color: #e8f5e8 !important; font-weight: bold !important; font-style: italic !important; color: #2e7d32 !important; }
+                .table-footer { background: #f0f0f0; padding: 12px 15px; font-weight: bold; display: flex; gap: 30px; border-top: 2px solid #ddd; }
+                .table-footer-item { color: #2c3e50; }
+                .table-footer-value { color: #2980b9; margin-left: 8px; font-size: 1.1rem; }
+                .watermark-pc { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; opacity: 0.3; z-index: 1000; pointer-events: none; animation: watermarkFloat 3s ease-in-out infinite; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+                .watermark-text-pc { position: fixed; bottom: 25px; left: 20px; color: rgba(102, 126, 234, 0.2); font-size: 1rem; font-weight: bold; z-index: 1000; pointer-events: none; transform: rotate(-5deg); text-shadow: 1px 1px 2px rgba(0,0,0,0.1); white-space: nowrap; }
+                @keyframes watermarkFloat { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-10px) rotate(5deg);} }
+                .operational-info { background: #fff3e0; border: 2px solid #ff9800; border-radius: 10px; padding: 20px; margin-bottom: 20px; animation: pulse 2s infinite; box-shadow: 0 0 15px rgba(255, 152, 0, 0.2); }
+                .operational-info h4 { color: #e65100; margin-top: 0; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #ff9800; padding-bottom: 10px; }
+                .operational-info-content { background: white; padding: 15px; border-radius: 5px; border-left: 4px solid #ff9800; font-size: 1rem; line-height: 1.5; }
+                .operational-info-blink { width: 12px; height: 12px; background-color: #ff9800; border-radius: 50%; display: inline-block; animation: blink 1s infinite; margin-left: 8px; box-shadow: 0 0 10px #ff9800; }
+                @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,152,0,0.7);} 70%{box-shadow:0 0 0 15px rgba(255,152,0,0);} 100%{box-shadow:0 0 0 0 rgba(255,152,0,0);} }
+                @keyframes blink { 0%,50%,100%{opacity:1;transform:scale(1);} 25%,75%{opacity:0.3;transform:scale(0.8);} }
+                @media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .work-detail { flex-direction: column; gap: 10px; } .weather-row { flex-direction: column; } .table-footer { flex-direction: column; gap: 10px; } .watermark-pc { width: 40px; height: 40px; font-size: 1rem; bottom: 10px; right: 10px; } .watermark-text-pc { font-size: 0.8rem; bottom: 15px; left: 10px; } .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; } .custom-table { min-width: 600px; white-space: nowrap; } .custom-table td, .custom-table th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+            </style></head><body><div class="watermark-pc">ДМ</div><div class="watermark-text-pc">Created by Dmitry Marshansky</div><div class="app-header"><h2>Мониторинг флота компании</h2></div><div class="date-header"><div>📅 04-04-2026 (Суббота)</div><div>📊 Производственная неделя: 14</div></div><div class="operational-info"><h4>📋 Оперативная информация <span class="operational-info-blink"></span></h4><div class="operational-info-content">Нет оперативной информации</div></div><div class="work-detail"><div class="work-detail-item"><div class="work-detail-label">Собственные</div><div class="work-detail-value">6</div></div><div class="work-detail-item"><div class="work-detail-label">Сторонние</div><div class="work-detail-value">8</div></div><div class="work-detail-item"><div class="work-detail-label">Всего в работе</div><div class="work-detail-value">14</div></div></div><div class="kpi-grid"><div class="kpi-cell bg-work"><div class="kpi-val">14</div><div class="kpi-lbl">🚢 В РАБОТЕ</div></div><div class="kpi-cell bg-load"><div class="kpi-val">8</div><div class="kpi-lbl">⚓ ПОД ПОГРУЗКОЙ</div></div><div class="kpi-cell bg-toload"><div class="kpi-val">4</div><div class="kpi-lbl">➡️ НА ПОГРУЗКУ</div></div><div class="kpi-cell bg-tounload"><div class="kpi-val">2</div><div class="kpi-lbl">⬅️ НА ВЫГРУЗКУ</div></div><div class="kpi-cell bg-repair"><div class="kpi-val">2</div><div class="kpi-lbl">🔧 НА РЕМОНТЕ</div></div></div><div class="data-card"><div class="card-title-bar bg-approach" id="btn-card-bg-approach" onclick="toggleTable('card-bg-approach')"><span>Подход судов (4)</span><span>▼</span></div><div id="card-bg-approach" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Дата</th><th>Отправитель</th></tr></thead><tbody><tr class="row-critical"><td>Дон Стар7</td><td>-</td><td>04-04-2026</td><td>РАТ</td></tr><tr class="row-critical"><td>Дон Стар5</td><td>-</td><td>04-04-2026</td><td>РАТ</td></tr><tr class="row-critical"><td>Св.Спиридон</td><td>-</td><td>04-04-2026</td><td>РАТ</td></tr><tr class="row-critical"><td>Линда1</td><td>-</td><td>05-04-2026</td><td>РАТ</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего записей: <span class="table-footer-value">4</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-load" id="btn-card-bg-load" onclick="toggleTable('card-bg-load')"><span>Суда под погрузкой (8)</span><span>▼</span></div><div id="card-bg-load" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Отправитель</th><th>Статус</th><th>На борту</th></tr></thead><tbody><tr class=""><td>Дон Стар4</td><td>Прибой</td><td>РАТ</td><td>Остановка погрузки. Метео</td><td>2360</td></tr><tr class=""><td>Волго-Дон5079</td><td>Родные Поля</td><td>РАТ</td><td>Погрузка</td><td>1500</td></tr><tr class=""><td>Дон</td><td>Портгрейн</td><td>РАТ</td><td>Погрузка</td><td>1561</td></tr><tr class=""><td>Абрамцево</td><td>Портгрейн</td><td>РАТ</td><td>Ожидание погрузки</td><td>0</td></tr><tr class=""><td>Дон Стар8</td><td>Портгрейн</td><td>РАТ</td><td>Ожидание погрузки</td><td>0</td></tr><tr class=""><td>В.Успенский</td><td>РКХП</td><td>РАТ</td><td>Остановка погрузки. Метео</td><td>0</td></tr><tr class=""><td>Дон Стар1</td><td>ВТП</td><td>РАТ</td><td>Остановка погрузки. Метео</td><td>0</td></tr><tr class=""><td>Соммерс</td><td>Родные Поля</td><td>РАТ</td><td>Ожидание погрузки</td><td>0</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего судов: <span class="table-footer-value">8</span></div><div class="table-footer-item">⚖️ Общий вес: <span class="table-footer-value">5421 т</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-toload" id="btn-card-bg-toload" onclick="toggleTable('card-bg-toload')"><span>Следуют на погрузку (4)</span><span>▼</span></div><div id="card-bg-toload" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Статус</th><th>Отправитель</th><th>Вес</th></tr></thead><tbody><tr class=""><td>Дон Стар5</td><td>-</td><td>На Рейде порта Ростов</td><td>РАТ</td><td>3300</td></tr><tr class=""><td>Дон Стар7</td><td>-</td><td>На Рейде порта Ростов</td><td>РАТ</td><td>2800</td></tr><tr class=""><td>Св.Спиридон</td><td>-</td><td>462  я.с . Ожидание .</td><td>РАТ</td><td>3600</td></tr><tr class=""><td>Линда1</td><td>-</td><td>ЮГ КЕК. Выгружен</td><td>РАТ</td><td>4600</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего судов: <span class="table-footer-value">4</span></div><div class="table-footer-item">⚖️ Общий вес: <span class="table-footer-value">14300 т</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-tounload" id="btn-card-bg-tounload" onclick="toggleTable('card-bg-tounload')"><span>Прямые рейсы (1)</span><span>▼</span></div><div id="card-bg-tounload" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Дата</th><th>Груз</th><th>Статус</th><th>Отправитель</th><th>Вес</th></tr></thead><tbody><tr class=""><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего записей: <span class="table-footer-value">1</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-transfer" id="btn-card-bg-transfer" onclick="toggleTable('card-bg-transfer')"><span>Рейдовая перевалка (2)</span><span>▼</span></div><div id="card-bg-transfer" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Статус</th><th>Отправитель</th><th>Вес</th></tr></thead><tbody><tr class=""><td>Волго-Дон219</td><td>Прибой</td><td>СЕВЕР КЕК. Загружен</td><td>РАТ</td><td>4800</td></tr><tr class=""><td>Дон Стар2</td><td>Родные Поля</td><td>Следует в Азовском море</td><td>РАТ</td><td>4053.075</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего судов: <span class="table-footer-value">2</span></div><div class="table-footer-item">⚖️ Общий вес: <span class="table-footer-value">8853 т</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-repair" id="btn-card-bg-repair" onclick="toggleTable('card-bg-repair')"><span>Ремонт (2)</span><span>▼</span></div><div id="card-bg-repair" style="display:block"><div class="table-container"><table class="custom-table"><thead><tr><th>TX</th><th>Порт</th><th>Статус</th></tr></thead><tbody><tr class=""><td>Дон Стар3</td><td>СРЗ Мидель</td><td>Ремонт</td></tr><tr class=""><td>Дон Стар6</td><td>-</td><td>Ремонт</td></tr></tbody></table></div><div class="table-footer"><div class="table-footer-item">📊 Всего записей: <span class="table-footer-value">2</span></div></div></div></div><div class="data-card"><div class="card-title-bar bg-weather">Прогноз погоды</div><div class="weather-row"><div class="weather-day"><div class="weather-date-top">04.04</div><div class="weather-weekday">Сб</div><i class="fas fa-cloud-sun"></i><div>+12..+16</div><div>Юго-Западный  2 м/с</div><div>Преимущественно без осадков</div></div><div class="weather-day"><div class="weather-date-top">05.04</div><div class="weather-weekday">Вс</div><i class="fas fa-cloud-sun"></i><div>+12..+16</div><div>Западный   4 м/с</div><div>Преимущественно без осадков</div></div><div class="weather-day"><div class="weather-date-top">06.04</div><div class="weather-weekday">Пн</div><i class="fas fa-cloud-sun"></i><div>+10..+14</div><div>Северо-Западный  4 м/с   </div><div>Преимущественно без осадков</div></div></div></div></body></html>
